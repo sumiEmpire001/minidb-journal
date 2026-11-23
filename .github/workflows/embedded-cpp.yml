@@ -1,0 +1,26 @@
+name: Embedded C++ host tests
+on: [push, pull_request]
+jobs:
+  host:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler: [g++, clang++]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test
+        env:
+          CXX: ${{ matrix.compiler }}
+        run: |
+          cmake -S cpp -B build
+          cmake --build build
+          ctest --test-dir build --output-on-failure
+
+  python-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests -v
